@@ -170,6 +170,7 @@ def main(config):
                      The following parameters are supported:
                         - dev_api_key: the API key to use when making requests to the One Ring API when running locally
                         - character_id: the id of the character to use when fetching quotes (to avoid random selection)
+                        - quote_id: the id of the quote to use when fetching quotes (to avoid random selection)
                         - debug: whether or not to print debug statements to the console (set to true to enable)
                         - bypass_cache: whether or not to bypass the cache and make a network request to the gist
                      Supply the config parameter when using the pixlet render command
@@ -224,6 +225,14 @@ def main(config):
     else:
         random_quote_index = random.number(0, len(character_quotes) - 1)
         random_quote = character_quotes[random_quote_index]
+    
+    # if the config parameter quote_id is supplied, use that quote instead
+    # we will need to iterate through all of the quotes to find the quote with the matching id because the quotes are not indexed by id
+    if config.get("quote_id"):
+        for quote in character_quotes:
+            if quote["id"] == config.get("quote_id"):
+                random_quote = quote
+                break
 
     debug_print(debug, "[Log] We picked quote #" + str(random_quote_index) + " and the quote is \"" + str(random_quote["dialog"]) + "\"")
 
