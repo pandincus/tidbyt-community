@@ -36,7 +36,7 @@ CACHE_TTL_SECONDS = 60 * 60 * 4
 ### -------------------------------------------------- ###
 ###                   Helper functions                 ###
 ### -------------------------------------------------- ###
-def load_characters_and_images(debug=False, bypass_cache=False):
+def load_characters_and_images(debug = False, bypass_cache = False):
     """Loads the LOTR characters and their images from a CSV file stored in a gist
 
     If the CSV file has already been loaded into the cache, it will be retrieved from there instead
@@ -58,9 +58,9 @@ def load_characters_and_images(debug=False, bypass_cache=False):
     response = http.get(CSV_ENDPOINT)
     if response.status_code != 200:
         fail("[CHARACTERS] Unexpected status:" + str(response.status_code))
-    
+
     # make the request to the gist, load the csv
-    lotr_characters_csv = csv.read_all(response.body(), trim_leading_space=True, skip=1)
+    lotr_characters_csv = csv.read_all(response.body(), trim_leading_space = True, skip = 1)
 
     # iterate over the csv and construct a dictionary
     # the key in the dictionary is the id
@@ -68,10 +68,10 @@ def load_characters_and_images(debug=False, bypass_cache=False):
     lotr_characters = {row_fields[1]: {"id": row_fields[1], "name": row_fields[0], "image": row_fields[2]} for row_fields in lotr_characters_csv}
     lotr_characters_string = json.encode(lotr_characters)
     debug_print(debug, "[Cache] LOTR Characters cache miss, loaded bytes: " + str(len(lotr_characters_string)))
-    cache.set("lotr_characters", lotr_characters_string, ttl_seconds=CACHE_TTL_SECONDS)
+    cache.set("lotr_characters", lotr_characters_string, ttl_seconds = CACHE_TTL_SECONDS)
     return lotr_characters
 
-def load_all_quotes(character_ids, headers, debug=False, bypass_cache=False):
+def load_all_quotes(character_ids, headers, debug = False, bypass_cache = False):
     """Loads all of the quotes for the given character ids
 
     If the quotes have already been loaded into the cache, they will be retrieved from there instead
@@ -82,7 +82,7 @@ def load_all_quotes(character_ids, headers, debug=False, bypass_cache=False):
         headers (dict): a dictionary of headers to send with the request
         bypass_cache (bool): whether or not to bypass the cache and make a network request to the One Ring API
         debug (bool): whether or not to print debug statements to the console (set to true to enable)
-    
+
     Returns:
         dict: a dictionary of character ids to a list of quotes
     """
@@ -90,14 +90,15 @@ def load_all_quotes(character_ids, headers, debug=False, bypass_cache=False):
     if bypass_cache == False and lotr_quotes_string != None:
         debug_print(debug, "[Cache] LOTR Quotes cache hit, found bytes: " + str(len(lotr_quotes_string)))
         return json.decode(lotr_quotes_string)
-    
+
     # make a request to the One Ring API to get all of the quotes
     # the characterIds parameter is a list, so we must convert it to a comma-separated string
-    response = http.get(ALL_QUOTES_API.format(characterIds=",".join(character_ids)), headers=headers)
+    response = http.get(ALL_QUOTES_API.format(characterIds = ",".join(character_ids)), headers = headers)
     if response.status_code != 200:
         fail("[QUOTES] Unexpected status:" + str(response.status_code))
 
     quotes = response.json()["docs"]
+
     # construct a dictionary of character ids to a list of quotes
     # for each quote, add the quote to the list of quotes for the character
     lotr_quotes = {}
@@ -108,10 +109,10 @@ def load_all_quotes(character_ids, headers, debug=False, bypass_cache=False):
         lotr_quotes[character_id].append(quote)
     lotr_quotes_string = json.encode(lotr_quotes)
     debug_print(debug, "[Cache] LOTR Quotes cache miss, loaded bytes: " + str(len(lotr_quotes_string)))
-    cache.set("lotr_quotes", lotr_quotes_string, ttl_seconds=CACHE_TTL_SECONDS)
+    cache.set("lotr_quotes", lotr_quotes_string, ttl_seconds = CACHE_TTL_SECONDS)
     return lotr_quotes
 
-def load_all_movies(headers, debug=False, bypass_cache=False):
+def load_all_movies(headers, debug = False, bypass_cache = False):
     """Loads all of the LOTR movies from the One Ring API
 
     If the movies have already been loaded into the cache, they will be retrieved from there instead
@@ -130,18 +131,19 @@ def load_all_movies(headers, debug=False, bypass_cache=False):
     if bypass_cache == False and lotr_movies_string != None:
         debug_print(debug, "[Cache] LOTR Movies cache hit, found bytes: " + str(len(lotr_movies_string)))
         return json.decode(lotr_movies_string)
-    
+
     # make a request to the One Ring API to get all of the movies
-    response = http.get(ALL_MOVIES_API, headers=headers)
+    response = http.get(ALL_MOVIES_API, headers = headers)
     if response.status_code != 200:
         fail("[MOVIES] Unexpected status:" + str(response.status_code))
-    
+
     movies = response.json()["docs"]
+
     # construct a dictionary of movie ids to movie objects
     lotr_movies = {movie["_id"]: movie for movie in movies}
     lotr_movies_string = json.encode(lotr_movies)
     debug_print(debug, "[Cache] LOTR Movies cache miss, loaded bytes: " + str(len(lotr_movies_string)))
-    cache.set("lotr_movies", lotr_movies_string, ttl_seconds=CACHE_TTL_SECONDS)
+    cache.set("lotr_movies", lotr_movies_string, ttl_seconds = CACHE_TTL_SECONDS)
     return lotr_movies
 
 def debug_print(debug, string):
@@ -150,7 +152,7 @@ def debug_print(debug, string):
     Args:
         debug (bool): whether or not debug mode is enabled, which determines whether or not to print
         string (str): the string to print
-    
+
     Returns:
         None
     """
@@ -181,10 +183,12 @@ def main(config):
     # Decrypt the hardcoded API key, or use the dev_api_key config parameter if running locally
     api_key = secret.decrypt(API_KEY_ENCRYPTED) or config.get("dev_api_key")
     headers = {
-        "Authorization": "Bearer " + str(api_key)
+        "Authorization": "Bearer " + str(api_key),
     }
+
     # Set debug to True if the lowercased value of the debug config parameter is "true"
     debug = config.get("debug") != None and config.get("debug").lower() == "true"
+
     # Set bypass_cache to True if the lowercased value of the bypass_cache config parameter is "true"
     bypass_cache = config.get("bypass_cache") != None and config.get("bypass_cache").lower() == "true"
 
@@ -192,20 +196,20 @@ def main(config):
     debug_print(debug, "[Config] bypass_cache: " + str(bypass_cache))
 
     # Load the LOTR characters and their images from the CSV file (or the cache)
-    lotr_characters = load_characters_and_images(debug=debug, bypass_cache=bypass_cache)
+    lotr_characters = load_characters_and_images(debug = debug, bypass_cache = bypass_cache)
 
     # Fetch ALL movies from One Ring API (or the cache)
-    lotr_movies = load_all_movies(headers=headers, debug=debug, bypass_cache=bypass_cache)
+    lotr_movies = load_all_movies(headers = headers, debug = debug, bypass_cache = bypass_cache)
 
     # Fetch all quotes for the loaded characters (or the cache)
-    lotr_quotes = load_all_quotes(character_ids=lotr_characters.keys(), headers=headers, debug=debug, bypass_cache=bypass_cache)
+    lotr_quotes = load_all_quotes(character_ids = lotr_characters.keys(), headers = headers, debug = debug, bypass_cache = bypass_cache)
 
     # Select a random character
     # If the config parameter character_id is supplied, use that character instead
     if config.get("character_id"):
         random_character_id = config.get("character_id")
     else:
-        random_character_index = random.number(0, len(lotr_characters)-1)
+        random_character_index = random.number(0, len(lotr_characters) - 1)
         random_character_id = lotr_characters.keys()[random_character_index]
     random_character = lotr_characters[random_character_id]
 
@@ -218,11 +222,11 @@ def main(config):
     if len(character_quotes) == 1:
         random_quote = character_quotes[0]
     else:
-        random_quote_index = random.number(0, len(character_quotes)-1)
+        random_quote_index = random.number(0, len(character_quotes) - 1)
         random_quote = character_quotes[random_quote_index]
-    
+
     debug_print(debug, "[Log] We picked quote #" + str(random_quote_index) + " and the quote is \"" + str(random_quote["dialog"]) + "\"")
-    
+
     # the layout is two columns, the left column is the quote (in a vertical scrolling marquee), the right column is the character
     # the right column is composed of two rows, the top row (24 pixels high) is the image,
     # the bottom row (8 pixels high) is the character and movie name
@@ -243,11 +247,11 @@ def main(config):
                                 child = render.WrappedText(
                                     font = "tom-thumb",
                                     width = 36,
-                                    content = random_quote["dialog"]
-                                )
-                            )
-                        )
-                    ]
+                                    content = random_quote["dialog"],
+                                ),
+                            ),
+                        ),
+                    ],
                 ),
                 render.Column(
                     children = [
@@ -258,9 +262,9 @@ def main(config):
                                 render.Image(
                                     src = base64.decode(random_character["image"]),
                                     width = 28,
-                                    height = 24
-                                )
-                            ]
+                                    height = 24,
+                                ),
+                            ],
                         ),
                         render.Row(
                             expanded = True,
@@ -274,13 +278,13 @@ def main(config):
                                     child = render.WrappedText(
                                         font = "tom-thumb",
                                         height = 8,
-                                        content = random_character["name"] + " - " + lotr_movies[random_quote["movie"]]["name"]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+                                        content = random_character["name"] + " - " + lotr_movies[random_quote["movie"]]["name"],
+                                    ),
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
     )
