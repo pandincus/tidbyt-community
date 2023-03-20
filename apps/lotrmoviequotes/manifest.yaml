@@ -1,0 +1,8 @@
+---
+id: lotr-movie-quotes
+name: LOTR Movie Quotes
+summary: Display LOTR Film Quotes
+desc: Display random LOTR Film Quotes and display a character image still from the film.
+author: pandincus and Ilya Zinger
+fileName: lotr_movie_quotes.star
+packageName: lotrmoviequotes
