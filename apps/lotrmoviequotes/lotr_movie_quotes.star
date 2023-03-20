@@ -11,14 +11,14 @@ Thanks to:
       we used to encode the pixel art images into base64 strings
 """
 
-load("render.star", "render")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/csv.star", "csv")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("secret.star", "secret")
 load("random.star", "random")
-load("encoding/csv.star", "csv")
-load("cache.star", "cache")
+load("render.star", "render")
+load("secret.star", "secret")
 
 ONE_RING_ROOT_API = "https://the-one-api.dev/v2"
 API_KEY_ENCRYPTED = "AV6+xWcEl2FxUXXBCofv20FrllxVMcsXrXECb2capXAwiViRZudepczQSt5y4rrBQVGdfpr3uxwQNlJbIzXyoJZLBY7pRZX9MgJieuz3HWHIbqTlKEWgOVPF6YRJ5p5FVb0ukIrQUbINObJTeWlBT+r+x04Tpr/9DZo="
